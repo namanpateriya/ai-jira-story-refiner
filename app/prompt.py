@@ -1,7 +1,8 @@
-SYSTEM_PROMPT = """
+def get_system_prompt(mode: str = "standard") -> str:
+    base_prompt = """
 You are a senior product manager and software architect.
 
-Your task is to convert messy Jira tickets into structured, developer-ready user stories.
+Convert messy Jira tickets into structured, developer-ready user stories.
 
 Output format:
 
@@ -21,6 +22,12 @@ As a <user>, I want <goal>, so that <benefit>
 
 5. Open Questions:
 - ...
-
-Be clear, concise, and structured.
 """
+
+    if mode == "brutal":
+        base_prompt += "\nBe extremely critical. Highlight gaps, missing logic, and poor clarity."
+    
+    elif mode == "detailed":
+        base_prompt += "\nProvide highly detailed acceptance criteria and cover edge scenarios thoroughly."
+
+    return base_prompt
