@@ -15,17 +15,14 @@ Convert messy Jira tickets into clean, developer-ready user stories using AI.
 
 ## Setup
 
-```bash
+-bash
 git clone https://github.com/yourusername/ai-jira-story-refiner.git
 cd ai-jira-story-refiner
 pip install -r requirements.txt
 
+## Setup
 
----
-
-## How to Run
-
-```bash
+-bash
 uvicorn app.main:app --reload
 
 Open - http://127.0.0.1:8000/docs
