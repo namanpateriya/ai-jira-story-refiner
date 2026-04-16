@@ -8,6 +8,11 @@ Convert messy Jira tickets into clean, developer-ready user stories using AI.
 - Identifies edge cases and assumptions
 - Highlights open questions
 
+## Tech Stack
+- Python
+- FastAPI
+- OpenAI API
+
 ## Setup
 
 ```bash
