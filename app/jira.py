@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ------------------ Logging ------------------ #
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ------------------ Config ------------------ #
@@ -84,22 +83,13 @@ def get_jira_ticket(issue_key: str):
         raise
 
 
-def update_jira_ticket(issue_key: str, refined_text: str):
+def update_jira_ticket(issue_key: str, text: str):
     try:
         url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}"
 
         payload = {
-            "body": {
-                "type": "doc",
-                "version": 1,
-                "content": [
-                    {
-                        "type": "paragraph",
-                        "content": [
-                            {"type": "text", "text": text}
-                        ]
-                    }
-                ]
+            "fields": {
+                "description": text
             }
         }
 
@@ -123,7 +113,18 @@ def add_comment(issue_key: str, text: str):
         url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}/comment"
 
         payload = {
-            "body": text
+            "body": {
+                "type": "doc",
+                "version": 1,
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {"type": "text", "text": text}
+                        ]
+                    }
+                ]
+            }
         }
 
         logger.info(f"Adding comment to Jira ticket: {issue_key}")
