@@ -96,11 +96,8 @@ def run_jira_batch(args):
 
             try:
                 print(f"\nProcessing {key}...")
-
-                summary = issue.get("summary", "")
-                description = issue.get("description", "")
-
-                raw_text = build_issue_text(issue)
+                
+                raw = build_issue_text(issue)
 
                 result = refine_jira_story(raw, args.mode)
 
