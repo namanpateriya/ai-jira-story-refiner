@@ -1,0 +1,105 @@
+[
+  {
+    "input": "Fix login bug",
+    "expected_score_range": [0, 2],
+    "expected_priority": "High"
+  },
+  {
+    "input": "User should be able to login",
+    "expected_score_range": [1, 3],
+    "expected_priority": "High"
+  },
+  {
+    "input": "Add login feature with validation",
+    "expected_score_range": [2, 4],
+    "expected_priority": "High"
+  },
+  {
+    "input": "Users cannot login after password reset, needs urgent fix",
+    "expected_score_range": [3, 5],
+    "expected_priority": "High"
+  },
+  {
+    "input": "Implement login with username/password and error handling",
+    "expected_score_range": [4, 6],
+    "expected_priority": "High"
+  },
+
+  {
+    "input": "Add search functionality",
+    "expected_score_range": [2, 4],
+    "expected_priority": "Medium"
+  },
+  {
+    "input": "Users should be able to search products by name",
+    "expected_score_range": [3, 5],
+    "expected_priority": "Medium"
+  },
+  {
+    "input": "Add filters for product search including price and category",
+    "expected_score_range": [4, 6],
+    "expected_priority": "Medium"
+  },
+  {
+    "input": "Improve search with sorting and pagination",
+    "expected_score_range": [5, 7],
+    "expected_priority": "Medium"
+  },
+  {
+    "input": "Implement advanced search with filters, sorting, pagination and caching",
+    "expected_score_range": [6, 8],
+    "expected_priority": "Medium"
+  },
+
+  {
+    "input": "Change button color",
+    "expected_score_range": [6, 8],
+    "expected_priority": "Low"
+  },
+  {
+    "input": "Update UI for homepage layout",
+    "expected_score_range": [5, 7],
+    "expected_priority": "Low"
+  },
+  {
+    "input": "Refactor CSS styles for consistency",
+    "expected_score_range": [6, 9],
+    "expected_priority": "Low"
+  },
+  {
+    "input": "Improve UI responsiveness across devices",
+    "expected_score_range": [6, 9],
+    "expected_priority": "Low"
+  },
+  {
+    "input": "Minor UI alignment fixes on dashboard",
+    "expected_score_range": [7, 9],
+    "expected_priority": "Low"
+  },
+
+  {
+    "input": "Build complete payment system with multiple gateways, retries, refunds and fraud detection",
+    "expected_score_range": [8, 10],
+    "expected_priority": "High"
+  },
+  {
+    "input": "Implement real-time chat system with notifications and scaling",
+    "expected_score_range": [8, 10],
+    "expected_priority": "High"
+  },
+  {
+    "input": "Create analytics dashboard with real-time data and visualizations",
+    "expected_score_range": [7, 9],
+    "expected_priority": "Medium"
+  },
+  {
+    "input": "Add audit logging for all user actions",
+    "expected_score_range": [6, 8],
+    "expected_priority": "Medium"
+  },
+  {
+    "input": "Optimize database queries for performance improvement",
+    "expected_score_range": [5, 8],
+    "expected_priority": "Medium"
+  }
+]
