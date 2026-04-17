@@ -3,12 +3,18 @@ import logging
 import re
 from openai import OpenAI
 from app.prompt import get_system_prompt
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # ------------------ Logging ------------------ #
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ------------------ Client ------------------ #
+if not os.getenv("OPENAI_API_KEY"):
+    raise Exception("Missing OPENAI_API_KEY")
+    
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # ------------------ Helper Function ------------------ #
@@ -33,7 +39,7 @@ def refine_jira_story(raw_input: str, mode: str = "standard") -> str:
         system_prompt = get_system_prompt(mode)
 
         response = client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL"),
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": raw_input}
