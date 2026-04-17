@@ -18,6 +18,7 @@ def run_batch(jql: str, mode: str = "standard", limit: int = 5):
 
         results.append({
             "key": issue["key"],
+            "score": extract_score(refined),  # simple parsing
             "status": "processed"
         })
 
