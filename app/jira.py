@@ -27,29 +27,45 @@ headers = {
 # ------------------ Helpers ------------------ #
 
 def extract_description_text(description):
+    """
+    Converts Jira ADF (or plain text) into readable text.
+    """
+    if not description:
+        return ""
+
+    # If already string → return directly
+    if isinstance(description, str):
+        return description
+
+    # Handle ADF JSON
     if isinstance(description, dict):
         try:
-            content = description.get("content", [])
             texts = []
 
-            for block in content:
-                for inner in block.get("content", []):
-                    if inner.get("type") == "text":
-                        texts.append(inner.get("text", ""))
+            def parse_content(content):
+                for block in content:
+                    if "content" in block:
+                        parse_content(block["content"])
+                    if block.get("type") == "text":
+                        texts.append(block.get("text", ""))
 
-            return " ".join(texts)
-        except Exception:
+            parse_content(description.get("content", []))
+
+            return " ".join(texts).strip()
+
+        except Exception as e:
+            logger.warning(f"ADF parsing failed, fallback to string: {str(e)}")
             return str(description)
 
-    return description or ""
-
+    return str(description)
+    
 def get_jira_ticket(issue_key: str):
     try:
         url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}"
 
         logger.info(f"Fetching Jira ticket: {issue_key}")
 
-        response = requests.get(url, headers=headers, auth=auth)
+        response = requests.get(url, headers=headers, auth=auth, timeout=10)
 
         if response.status_code != 200:
             logger.error(f"Failed to fetch ticket {issue_key} | Status: {response.status_code}")
@@ -89,7 +105,7 @@ def update_jira_ticket(issue_key: str, refined_text: str):
 
         logger.info(f"Updating Jira ticket: {issue_key}")
 
-        response = requests.put(url, json=payload, headers=headers, auth=auth)
+        response = requests.put(url, json=payload, headers=headers, auth=auth, timeout=10)
 
         if response.status_code not in [200, 204]:
             logger.error(f"Failed to update ticket {issue_key} | Status: {response.status_code}")
@@ -112,7 +128,7 @@ def add_comment(issue_key: str, text: str):
 
         logger.info(f"Adding comment to Jira ticket: {issue_key}")
 
-        response = requests.post(url, json=payload, headers=headers, auth=auth)
+        response = requests.post(url, json=payload, headers=headers, auth=auth, timeout=10)
 
         if response.status_code not in [200, 201]:
             logger.error(f"Failed to comment on {issue_key} | Status: {response.status_code}")
@@ -136,7 +152,7 @@ def search_jira_issues(jql: str, max_results: int = 10):
 
         logger.info(f"Searching Jira issues | JQL: {jql} | Limit: {max_results}")
 
-        response = requests.get(url, headers=headers, auth=auth, params=params)
+        response = requests.get(url, headers=headers, auth=auth, params=params, timeout=10)
 
         if response.status_code != 200:
             logger.error(f"Jira search failed | Status: {response.status_code}")
@@ -149,7 +165,7 @@ def search_jira_issues(jql: str, max_results: int = 10):
             issues.append({
                 "key": issue["key"],
                 "summary": issue["fields"].get("summary", ""),
-                "description": issue["fields"].get("description", "")
+                "description": extract_description_text(issue["fields"].get("description", ""))
             })
 
         logger.info(f"Found {len(issues)} issues")
@@ -159,3 +175,12 @@ def search_jira_issues(jql: str, max_results: int = 10):
     except Exception as e:
         logger.error(f"Error searching Jira issues: {str(e)}")
         raise
+
+def build_issue_text(issue: dict) -> str:
+    """
+    Standard way to convert Jira issue into LLM input text.
+    """
+    summary = issue.get("summary", "")
+    description = issue.get("description", "")
+
+    return f"{summary}\n\n{description}".strip()
