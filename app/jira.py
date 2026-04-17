@@ -1,7 +1,13 @@
 import os
 import requests
+import logging
 from requests.auth import HTTPBasicAuth
 
+# ------------------ Logging ------------------ #
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ------------------ Config ------------------ #
 JIRA_BASE_URL = os.getenv("JIRA_BASE_URL")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL")
 JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
@@ -13,48 +19,111 @@ headers = {
     "Content-Type": "application/json"
 }
 
+# ------------------ Helpers ------------------ #
 
 def get_jira_ticket(issue_key: str):
-    url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}"
+    try:
+        url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}"
 
-    response = requests.get(url, headers=headers, auth=auth)
-    data = response.json()
+        logger.info(f"Fetching Jira ticket: {issue_key}")
 
-    description = data["fields"].get("description", "")
-    summary = data["fields"].get("summary", "")
+        response = requests.get(url, headers=headers, auth=auth)
 
-    return f"{summary}\n\n{description}"
+        if response.status_code != 200:
+            logger.error(f"Failed to fetch ticket {issue_key} | Status: {response.status_code}")
+            raise Exception("Jira fetch failed")
+
+        data = response.json()
+
+        summary = data["fields"].get("summary", "")
+        description = data["fields"].get("description", "")
+
+        return f"{summary}\n\n{description}"
+
+    except Exception as e:
+        logger.error(f"Error fetching Jira ticket {issue_key}: {str(e)}")
+        raise
 
 
 def update_jira_ticket(issue_key: str, refined_text: str):
-    url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}"
+    try:
+        url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}"
 
-    payload = {
-        "fields": {
-            "description": refined_text
+        payload = {
+            "fields": {
+                "description": refined_text
+            }
         }
-    }
 
-    response = requests.put(url, json=payload, headers=headers, auth=auth)
-    return response.status_code
+        logger.info(f"Updating Jira ticket: {issue_key}")
+
+        response = requests.put(url, json=payload, headers=headers, auth=auth)
+
+        if response.status_code not in [200, 204]:
+            logger.error(f"Failed to update ticket {issue_key} | Status: {response.status_code}")
+            raise Exception("Jira update failed")
+
+        return True
+
+    except Exception as e:
+        logger.error(f"Error updating Jira ticket {issue_key}: {str(e)}")
+        raise
+
+
+def add_comment(issue_key: str, text: str):
+    try:
+        url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}/comment"
+
+        payload = {
+            "body": text
+        }
+
+        logger.info(f"Adding comment to Jira ticket: {issue_key}")
+
+        response = requests.post(url, json=payload, headers=headers, auth=auth)
+
+        if response.status_code not in [200, 201]:
+            logger.error(f"Failed to comment on {issue_key} | Status: {response.status_code}")
+            raise Exception("Jira comment failed")
+
+        return True
+
+    except Exception as e:
+        logger.error(f"Error adding comment to {issue_key}: {str(e)}")
+        raise
+
 
 def search_jira_issues(jql: str, max_results: int = 10):
-    url = f"{JIRA_BASE_URL}/rest/api/3/search"
+    try:
+        url = f"{JIRA_BASE_URL}/rest/api/3/search"
 
-    params = {
-        "jql": jql,
-        "maxResults": max_results
-    }
+        params = {
+            "jql": jql,
+            "maxResults": max_results
+        }
 
-    response = requests.get(url, headers=headers, auth=auth, params=params)
-    data = response.json()
+        logger.info(f"Searching Jira issues | JQL: {jql} | Limit: {max_results}")
 
-    issues = []
-    for issue in data["issues"]:
-        issues.append({
-            "key": issue["key"],
-            "summary": issue["fields"]["summary"],
-            "description": issue["fields"].get("description", "")
-        })
+        response = requests.get(url, headers=headers, auth=auth, params=params)
 
-    return issues
+        if response.status_code != 200:
+            logger.error(f"Jira search failed | Status: {response.status_code}")
+            raise Exception("Jira search failed")
+
+        data = response.json()
+
+        issues = []
+        for issue in data.get("issues", []):
+            issues.append({
+                "key": issue["key"],
+                "summary": issue["fields"].get("summary", ""),
+                "description": issue["fields"].get("description", "")
+            })
+
+        logger.info(f"Found {len(issues)} issues")
+
+        return issues
+
+    except Exception as e:
+        logger.error(f"Error searching Jira issues: {str(e)}")
+        raise
