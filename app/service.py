@@ -11,6 +11,16 @@ logger = logging.getLogger(__name__)
 # ------------------ Client ------------------ #
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# ------------------ Helper Function ------------------ #
+def ensure_required_fields(text: str) -> str:
+    if "Ticket Quality Score:" not in text:
+        text += "\n\nTicket Quality Score: 5/10"
+    
+    if "Priority Suggestion:" not in text:
+        text += "\nPriority Suggestion: Medium"
+
+    return text
+    
 # ------------------ Core Function ------------------ #
 
 def refine_jira_story(raw_input: str, mode: str = "standard") -> str:
@@ -36,6 +46,9 @@ def refine_jira_story(raw_input: str, mode: str = "standard") -> str:
         if not result:
             raise Exception("Empty response from LLM")
 
+        # enforce required fields
+        result = ensure_required_fields(result)
+
         logger.info("Refinement completed successfully")
 
         return result
@@ -49,7 +62,7 @@ def refine_jira_story(raw_input: str, mode: str = "standard") -> str:
 
 def extract_score(text: str):
     try:
-        match = re.search(r"Score[:\s]*(\d+)", text, re.IGNORECASE)
+        match = re.search(r"Ticket Quality Score:\s*(\d+)", text, re.IGNORECASE)
         if match:
             return int(match.group(1))
         return None
@@ -60,7 +73,7 @@ def extract_score(text: str):
 
 def extract_priority(text: str):
     try:
-        match = re.search(r"Priority[:\s]*(Low|Medium|High)", text, re.IGNORECASE)
+        match = re.search(r"Priority Suggestion:\s*(Low|Medium|High)", text, re.IGNORECASE)
         if match:
             return match.group(1)
         return None
