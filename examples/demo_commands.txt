@@ -1,8 +1,36 @@
-# Adhoc
+# CLI
+## Adhoc
 python cli.py adhoc --input "Login fails sometimes" --mode brutal
 
-# Jira single
+## Jira single
 python cli.py jira_direct --issue PROJ-123 --mode standard --update comment
 
-# Jira batch
+## Jira batch
 python cli.py jira_batch --jql "project = PROJ" --limit 5 --mode brutal --update comment
+
+# API
+## Adhoc
+curl -X POST "http://127.0.0.1:8000/adhoc" \
+-H "Content-Type: application/json" \
+-d '{
+  "input": "Login fails sometimes",
+  "mode": "brutal"
+}'
+
+## Jira single
+curl -X POST "http://127.0.0.1:8000/jira/PROJ-123" \
+-H "Content-Type: application/json" \
+-d '{
+  "mode": "standard",
+  "update": "comment"
+}'
+
+## Jira batch
+curl -X POST "http://127.0.0.1:8000/jira/batch" \
+-H "Content-Type: application/json" \
+-d '{
+  "jql": "project = PROJ AND status = \"To Do\"",
+  "limit": 5,
+  "mode": "brutal",
+  "update": "comment"
+}'
