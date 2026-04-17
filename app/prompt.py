@@ -23,11 +23,8 @@ As a <user>, I want <goal>, so that <benefit>
 5. Open Questions:
 - ...
 
-6. Ticket Quality Score (0-10):
-- ...
-
-7. Priority Suggestion (Low/Medium/High):
-- ...
+6. Ticket Quality Score: <number>/10
+7. Priority Suggestion: <Low/Medium/High>
 """
 
     if mode == "brutal":
