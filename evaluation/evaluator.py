@@ -4,7 +4,11 @@ from statistics import mean
 
 from app.service import refine_jira_story, extract_score, extract_priority
 from openai import OpenAI
+from dotenv import load_dotenv
+
 import os
+
+load_dotenv()
 
 # ------------------ Logging ------------------ #
 logging.basicConfig(level=logging.INFO)
