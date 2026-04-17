@@ -1,11 +1,10 @@
 import logging
 import time
 
-from app.jira import search_jira_issues, add_comment, update_jira_ticket, extract_description_text, build_issue_text
+from app.jira import search_jira_issues, add_comment, update_jira_ticket, build_issue_text
 from app.service import refine_jira_story, extract_score, extract_priority
 
 # ------------------ Logging ------------------ #
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ------------------ Batch Processor ------------------ #
@@ -32,7 +31,6 @@ def run_batch(jql: str, mode: str = "standard", limit: int = 5, update: str = "c
                 key = issue["key"]
                 logger.info(f"Processing issue: {key}")
 
-                description = extract_description_text(issue["description"])
                 raw_text = build_issue_text(issue)
                 refined = refine_jira_story(raw_text, mode)
 
