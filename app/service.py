@@ -8,7 +8,6 @@ load_dotenv()
 
 
 # ------------------ Logging ------------------ #
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ------------------ Client ------------------ #
@@ -33,6 +32,8 @@ def refine_jira_story(raw_input: str, mode: str = "standard") -> str:
     try:
         if not raw_input:
             raise ValueError("Empty input provided")
+
+        raw_input = raw_input[:2000]
 
         logger.info(f"Refinement started | Mode: {mode}")
 
