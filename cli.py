@@ -3,7 +3,7 @@ import sys
 import logging
 
 from app.service import refine_jira_story, extract_score, extract_priority
-from app.jira import get_jira_ticket, add_comment, update_jira_ticket, search_jira_issues
+from app.jira import get_jira_ticket, add_comment, update_jira_ticket, search_jira_issues, build_issue_text
 
 # ------------------ Logging ------------------ #
 logging.basicConfig(level=logging.INFO)
@@ -100,7 +100,7 @@ def run_jira_batch(args):
                 summary = issue.get("summary", "")
                 description = issue.get("description", "")
 
-                raw = f"{summary}\n\n{description}"
+                raw_text = build_issue_text(issue)
 
                 result = refine_jira_story(raw, args.mode)
 
