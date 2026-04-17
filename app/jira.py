@@ -2,6 +2,8 @@ import os
 import requests
 import logging
 from requests.auth import HTTPBasicAuth
+from dotenv import load_dotenv
+load_dotenv()
 
 # ------------------ Logging ------------------ #
 logging.basicConfig(level=logging.INFO)
@@ -12,6 +14,9 @@ JIRA_BASE_URL = os.getenv("JIRA_BASE_URL")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL")
 JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
 
+if not all([JIRA_BASE_URL, JIRA_EMAIL, JIRA_API_TOKEN]):
+    raise Exception("Missing Jira configuration")
+
 auth = HTTPBasicAuth(JIRA_EMAIL, JIRA_API_TOKEN)
 
 headers = {
@@ -20,6 +25,23 @@ headers = {
 }
 
 # ------------------ Helpers ------------------ #
+
+def extract_description_text(description):
+    if isinstance(description, dict):
+        try:
+            content = description.get("content", [])
+            texts = []
+
+            for block in content:
+                for inner in block.get("content", []):
+                    if inner.get("type") == "text":
+                        texts.append(inner.get("text", ""))
+
+            return " ".join(texts)
+        except Exception:
+            return str(description)
+
+    return description or ""
 
 def get_jira_ticket(issue_key: str):
     try:
@@ -36,7 +58,8 @@ def get_jira_ticket(issue_key: str):
         data = response.json()
 
         summary = data["fields"].get("summary", "")
-        description = data["fields"].get("description", "")
+        description_raw = data["fields"].get("description", "")
+        description = extract_description_text(description_raw)
 
         return f"{summary}\n\n{description}"
 
@@ -50,8 +73,17 @@ def update_jira_ticket(issue_key: str, refined_text: str):
         url = f"{JIRA_BASE_URL}/rest/api/3/issue/{issue_key}"
 
         payload = {
-            "fields": {
-                "description": refined_text
+            "body": {
+                "type": "doc",
+                "version": 1,
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {"type": "text", "text": text}
+                        ]
+                    }
+                ]
             }
         }
 
