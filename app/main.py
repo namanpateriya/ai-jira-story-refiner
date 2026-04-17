@@ -67,6 +67,9 @@ def jira_direct(issue_key: str, input: JiraUpdateInput):
         logger.info(f"API Jira Direct | Issue: {issue_key}")
 
         raw = get_jira_ticket(issue_key)
+        if not raw.strip():
+            raise HTTPException(400, "Empty Jira ticket")
+    
         refined = refine_jira_story(raw, input.mode)
 
         score = extract_score(refined)
