@@ -37,3 +37,24 @@ def update_jira_ticket(issue_key: str, refined_text: str):
 
     response = requests.put(url, json=payload, headers=headers, auth=auth)
     return response.status_code
+
+def search_jira_issues(jql: str, max_results: int = 10):
+    url = f"{JIRA_BASE_URL}/rest/api/3/search"
+
+    params = {
+        "jql": jql,
+        "maxResults": max_results
+    }
+
+    response = requests.get(url, headers=headers, auth=auth, params=params)
+    data = response.json()
+
+    issues = []
+    for issue in data["issues"]:
+        issues.append({
+            "key": issue["key"],
+            "summary": issue["fields"]["summary"],
+            "description": issue["fields"].get("description", "")
+        })
+
+    return issues
