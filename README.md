@@ -34,10 +34,21 @@ Create `.env` file:
 
 ```
 OPENAI_API_KEY=your_key
+OPENAI_MODEL=your_model
 JIRA_BASE_URL=https://your-domain.atlassian.net
 JIRA_EMAIL=your-email
 JIRA_API_TOKEN=your_token
 ```
+
+For API based execution
+
+```
+uvicorn app.main:app --reload
+Open Swagger UI - http://127.0.0.1:8000/docs
+```
+
+For CLI based execution
+Run using the client cli.py with appropriate options
 
 ---
 
@@ -45,105 +56,9 @@ JIRA_API_TOKEN=your_token
 
 ---
 
-## 1️⃣ Adhoc Mode (JSON Input)
-
-Run AI on raw input text.
-
-### Command
-
-```bash
-python cli.py adhoc \
---input "User login fails sometimes. Needs validation." \
---mode brutal
-```
-
-### Output
-
-```
-User Story:
-As a user, I want to log in securely...
-
-Acceptance Criteria:
-- Given valid credentials...
-- When user logs in...
-- Then access is granted
-
-Edge Cases:
-- Invalid password attempts
-- Network failure
-
-Assumptions:
-- User is registered
-
-Open Questions:
-- Should MFA be mandatory?
-
-Ticket Quality Score: 4/10
-Reason: Vague requirements, missing edge cases
-
-Priority Suggestion: High
-```
-
----
-
-## 2️⃣ Jira Direct Mode
-
-Refine a single Jira issue.
-
-### Command
-
-```bash
-python cli.py jira_direct \
---issue PROJ-123 \
---mode standard \
---update comment
-```
-
-### Behavior
-
-* Fetches Jira ticket
-* Runs refinement
-* Adds result as comment (default)
-
-### Output
-
-```
-Processed: PROJ-123
-Score: 5
-Priority: Medium
-Status: Comment Added
-```
-
----
-
-## 3️⃣ Jira Batch Mode (🔥 Powerful)
-
-Process multiple Jira issues using JQL.
-
-### Command
-
-```bash
-python cli.py jira_batch \
---jql "project = PROJ AND status = 'To Do'" \
---limit 5 \
---mode brutal \
---update comment
-```
-
-### Output
-
-```
-Processing PROJ-101...
-Score: 3 | Priority: High
-
-Processing PROJ-102...
-Score: 7 | Priority: Medium
-
-=== SUMMARY ===
-Processed: 5 issues
-Average Score: 4.8
-High Priority: 3
-```
+1️⃣ **Adhoc Mode** - Run AI on raw input text. \
+2️⃣ **Jira Direct Mode** - Refine a single Jira issue. \
+3️⃣ **Jira Batch Mode** - Process multiple Jira issues using JQL.
 
 ---
 
